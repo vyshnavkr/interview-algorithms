@@ -1,4 +1,15 @@
 1. Connect Four Problem: Graph
+
+Problem Statement: 
+To implement the Connect Four game for two players. 
+
+Description of the Game:
+Given a 5X5 grid which stands vertically and is initially empty. Each player drops a ball of their colour to a column in their turn, which sinks to the bottom. The first player to get 4 consecutive (horizontal or vertical or diagonal )  slots wins. 
+
+Interestingly, this board contains some blocked cells ( manufacturing defect), where it is not possible to the coin dropped in the column to reach down (by gravity) as it is blocked by the cell in between. Sample shown as follows. 
+
+ans:
+
 import java.io.*;
 import java.util.*;
 
