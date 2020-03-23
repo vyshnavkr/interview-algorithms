@@ -1,0 +1,122 @@
+1. Connect Four Problem: Graph
+import java.io.*;
+import java.util.*;
+
+class Solution {
+  /*
+    Pseudocode:
+    - create 5x5 board with blocked cells named "-1"      // completed
+    - for each element of inputs[], do two things:
+      - place the ball (named A/B) in the element-column  // completed
+      - check if the player won the game                  // completed     
+    // Note: Break the code with multiple test cases      // not done
+  */
+  
+  public static void main(String[] args) {
+    
+    String type = "Human-Human";
+    int[][] blockedCells = {{3, 3}, {4, 5}};
+    String[][] inputs = {{"A","5"}, {"B","4"}, {"A","3"}, 
+                         {"B","4"}, {"A","2"}, {"B","4"}, 
+                         {"A","2"}, {"A","2"}, {"A","2"}};
+    String[][] board = createBoard(blockedCells);
+    String winner = play(type, board, inputs);
+    printBoard(board);
+    System.out.println("winner: " + winner);
+    
+  }
+  
+  // play game
+  private static String play(String type, String[][] board, String[][] inputs){
+    int length = inputs.length;
+    int[] placedCell = new int[2];
+    for(int i = 0; i < length; i++){
+      System.out.println("input: " + inputs[i][0]);
+      placedCell = placeBall(inputs[i], board);
+      String player = getWinner(inputs[i], board, 1, placedCell);
+      if(player.equals("A") || player.equals("B")) return player;
+    }
+    return "-1";
+  }
+  
+  // returns the winner, if any, else -1
+  private static String getWinner(String[] input, String[][] board, int count, int[] placedCell){ 
+    boolean[][] vis = new boolean[5][5];
+    if(isWon(placedCell[0], placedCell[1], board, count, input, vis)) return input[0];
+    return "-1";
+  }
+  
+  
+  /* 
+    recursive function:  (lessons from my mistakes)
+      - are you modifying the correct variable be it for recursion or loop
+      - are you modifying the variable correctly
+      - are all the base conditions present:
+          - array limits
+          - if graph Q, is the cell to be traversed and is cell already visited
+      - if graph Q, are you using a visited matrix so as not to recurse on the same element twice
+      - what is the return type, when and where are you writing return statement
+  */
+  private static boolean isWon(int row, int column, 
+                               String[][] board, int count, String[] input, boolean[][] vis){
+    // base conditions: 
+    if(count > 4) return true;
+    if(row > 4 || column > 4) return false;
+    if(!board[row][column].equals(input[0]) || vis[row][column] == true) return false;
+    vis[row][column] = true;
+    
+    // recurse for all 8 adjacent cells
+    boolean left = isWon(row, column - 1, board, count+1,input, vis);  // left
+    boolean right = isWon(row, column + 1, board, count+1, input, vis);  // right
+    boolean up = isWon(row - 1, column, board, count+1, input, vis);  // top
+    boolean down = isWon(row + 1, column, board, count+1, input, vis);  // bottom
+    boolean leftUp = isWon(row - 1, column - 1, board, count+1, input, vis);  // left up diagonal 
+    boolean leftDown = isWon(row + 1, column - 1, board, count+1, input, vis);  // left down diagonal 
+    boolean rightUp = isWon(row - 1, column + 1, board, count+1, input, vis);  // right up diagonal
+    boolean rightDown = isWon(row + 1, column + 1, board, count+1, input, vis);  // right down diagonal
+    
+    return (left || right || up || down || leftUp || leftDown || rightUp || rightDown);   
+  }
+  
+  // returns the cell where ball is placed
+  private static int[] placeBall(String[] input, String[][] board){
+    int[] cell = new int[2];
+    int row = 0;
+    int column = Integer.parseInt(input[1]) - 1;
+    // traverse down the column until blocked cell, if any
+    while (row < board.length && board[row][column].equals("0")){
+      row++;
+    }
+    board[row-1][column] = input[0];
+    cell[0] = row-1;
+    cell[1] = column;
+    return cell;
+  }
+  
+  // returns a newly created board
+  private static String[][] createBoard(int[][] blockedCells){
+    String[][] board = new String[5][5];   
+    // intitialize all cells with 0
+    for(int i=0; i<5; i++){
+      for(int j=0; j<5; j++){
+        board[i][j] = "0";
+      }
+    }  
+    // initialize blocked cells with -1
+    for(int[] cell : blockedCells){
+      board[cell[0]-1][cell[1]-1] = "-1";
+    }
+    return board;
+  }
+  
+  // prints the board
+  private static void printBoard(String[][] board){
+    for(int i=0; i<5; i++){
+      for(int j=0; j<5; j++){
+        System.out.print(board[i][j] + " ");
+      }
+      System.out.println("");
+    }
+  }
+  
+}
