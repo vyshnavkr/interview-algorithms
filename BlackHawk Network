@@ -1,0 +1,108 @@
+1. Find missing digit in a simple maths equation of 3 operands.
+eg: find x in "3x + 12 = 46". Ans: x = 4
+
+import java.io.*;
+import java.util.*;
+
+class Solution {
+  public static void main(String[] args) {
+    String expression = "3x + 12 = 46";     
+    String operator = findOperatorType(expression);
+    String shiftedOperator = shiftOperator(operator);
+    boolean isEqualsBefore = isEqualsBeforeOperator(expression, operator);
+    String[] operands = createXYZ(expression);
+    int missingVariablePos = findX(operands);
+    int digitPos = findMissingDigitPos(operands[missingVariablePos]);
+    int result = process(operands, missingVariablePos, isEqualsBefore, operator, shiftedOperator);
+    String resultString = new String(result+"");
+    char ans = resultString.charAt(digitPos);
+    System.out.println(ans);
+  }
+  
+  
+  private static int process(String[] operands, int missingVariablePos, boolean isEqualsBefore, String operator, String shiftedOperator){
+    int ans;
+    if(missingVariablePos == 0){
+      if(isEqualsBefore){
+        ans = evaluate(operands[1], operator, operands[2]);
+      } else{
+        ans = evaluate(operands[2], shiftedOperator, operands[1]);
+      }
+    } else if(missingVariablePos == 1){
+      if(isEqualsBefore){
+        ans = evaluate(operands[0], shiftedOperator, operands[2]);
+      } else{
+        ans = evaluate(operands[2], shiftedOperator, operands[0]);
+      }
+    } else {
+      if(isEqualsBefore){
+        ans = evaluate(operands[0], shiftedOperator, operands[1]);
+      } else{
+        ans = evaluate(operands[0], operator, operands[1]);
+      }
+    }
+    return ans;
+  }
+  
+  private static int evaluate(String operand1, String operator, String operand2){
+    int ans = Integer.MIN_VALUE;
+    int a = Integer.parseInt(operand1);
+    int b = Integer.parseInt(operand2);
+    if(operator.equals("+")) ans = a + b;
+      else if(operator.equals("-")) ans = a - b;
+      else if(operator.equals("*")) ans = a * b;
+      else if(operator.equals("/")) ans = a / b;  
+    return ans;
+  }
+  
+  private static String shiftOperator(String s){
+    String ans = "";   
+    if(s.equals("+")) ans = "-";
+      else if(s.equals("-")) ans = "+";
+      else if(s.equals("*")) ans = "/";
+      else if(s.equals("/")) ans = "*";
+    return ans;
+  }
+  
+  private static int findMissingDigitPos(String s){
+    int ans;
+    ans = s.indexOf("x");
+    return ans;
+  }
+  
+  private static int findX(String[] a){
+    int ans = Integer.MIN_VALUE;
+    for(int i=0; i<a.length; i++)
+      if(a[i].contains("x")) ans = i;
+    return ans;
+  }
+  
+  private static String[] createXYZ(String s){
+    String[] ans;
+    ans = s.split("\\+|-|\\*|/|=");
+    for(int i=0; i<ans.length; i++) 
+      ans[i] = ans[i].trim();
+    return ans;
+  }
+  
+  private static boolean isEqualsBeforeOperator(String s, String operator){
+    boolean ans = false;
+    if(s.indexOf("=") < s.indexOf(operator)) ans = true; 
+    return ans;
+  }
+  
+  private static String findOperatorType(String s){
+    String operator = "";
+    if(s.contains("+")) operator = "+";
+    else if(s.contains("-")) operator = "-";
+    else if(s.contains("*")) operator = "*";
+    else if(s.contains("/")) operator = "/";
+    return operator;
+  }
+  
+}
+
+
+
+2. Swap linkedlist in pairs
+ans: // Geeksforgeeks
