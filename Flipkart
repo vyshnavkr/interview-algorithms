@@ -131,3 +131,196 @@ class Solution {
   }
   
 }
+
+
+2. FK Calendar
+
+Given that you work in an organisation, you have to book a meeting room for the given guests.
+The meeting must be in office hours ( 10 AM - 7PM). Meetings should have startTime, endTime (or duration from startTime), guest list and a room.
+
+Functions to implement:
+Create Room
+Create Guest 
+Find Room Availability (Room ,startTime, duration)
+Find Guest Availability (Guest, startTime, duration)
+Create Meeting (Room ,Guest list, startTime, duration)
+(After the meeting is created, a corresponding time slot for the Room and all guests should become unavailable for any other meetings).
+
+**Bonus Question:
+Cancel meeting (Note: Status of the meeting should be marked as cancelled here and all corresponding booked slots of guests and room should be freed).
+
+Sample Input:
+createRoom (R1)
+createRoom(R2)
+createGuest (G1)
+createGuest (G2)
+createGuest (G3)
+findRoomAvail(R1, 1575880200, 3600) 3600->seconds, 1575880200 -> 9 Dec, 2PM
+Availability = true
+findGuestAvail(G1, 1575880200, 3600)
+Availability = true
+findGuestAvail(G2, 1575880200, 3600)
+Availability = true
+createMeeting(R1, G1,G2,1575880200, 3600 )
+M1 Created
+ createMeeting(R2, G1,G2,1575880200, 3600 )
+Meeting could not be created.
+
+Expectations
+Code should be demo-able (very important), either by using a main driver program or test cases.
+Bonus questions should be attempted only after the main problem.
+Code should handle edge cases properly and fail gracefully.
+Create the sample data yourself to test your code. You can put it into a file, test case or main driver program itself.
+Code should not be monolithic and it should be readable, extensible with proper naming conventions. Best practices followed.
+Don’t use any database, store all the data in memory.
+Guidelines
+Feel free to discuss the solution with an interviewer
+Input can be read from file or can be hard coded/used. No need to waste time in thinking and coding around input formats and methods.
+You are free to use the language of your choice.
+
+
+Ans: 
+
+import java.io.*;
+import java.util.*;
+
+class Solution {
+  public static void main(String[] args) {
+    
+    Meeting meeting = new Meeting();
+    int startTime = 11;
+    int endTime = 13;
+    Room room1 = meeting.createRoom("R1");
+    Room room2 = meeting.createRoom("R2");
+    Guest guest1 = meeting.createGuest("G1");
+    Guest guest2 = meeting.createGuest("G2");
+    List<Guest> guests = new ArrayList<>();
+    guests.add(guest1);
+    guests.add(guest2);
+    
+    
+    System.out.println("1st Test case: ------");
+    
+    System.out.println("room1 available before: " + meeting.findRoomAvail(room1, startTime, endTime));
+    System.out.println("guest1 available before: " + meeting.findGuestAvail(guest1, startTime, endTime));
+    System.out.println("guest2 available before: " + meeting.findGuestAvail(guest2, startTime, endTime));
+    Unavailability unavailability1 = meeting.createMeeting(room1, guests, startTime, endTime);
+    System.out.println("room1 available after: " + meeting.findRoomAvail(room1, startTime, endTime));
+    System.out.println("guest1 available after: " + meeting.findGuestAvail(guest1, startTime, endTime));
+    System.out.println("guest2 available after: " + meeting.findGuestAvail(guest2, startTime, endTime));
+    
+    System.out.println("\n 2nd Test case: ------");
+    
+    
+    System.out.println("room2 available before: " + meeting.findRoomAvail(room2, startTime, endTime));
+    System.out.println("guest1 available before: " + meeting.findGuestAvail(guest1, startTime, endTime));
+    System.out.println("guest2 available before: " + meeting.findGuestAvail(guest2, startTime, endTime));
+    Unavailability unavailability2 = meeting.createMeeting(room2, guests, startTime, endTime);
+    System.out.println("room2 available after: " + meeting.findRoomAvail(room2, startTime, endTime));
+    System.out.println("guest1 available after: " + meeting.findGuestAvail(guest1, startTime, endTime));
+    System.out.println("guest2 available after: " + meeting.findGuestAvail(guest2, startTime, endTime));
+    
+    System.out.println("\n 3nd Test case - cancel meeting: ------");
+  
+  System.out.println("room1 available before: " + meeting.findRoomAvail(room1, startTime, endTime));
+    System.out.println("guest1 available before: " + meeting.findGuestAvail(guest1, startTime, endTime));
+    System.out.println("guest2 available before: " + meeting.findGuestAvail(guest2, startTime, endTime));
+     meeting.cancelMeeting(room1, guests, startTime, endTime, unavailability1);
+    System.out.println("room1 available after: " + meeting.findRoomAvail(room1, startTime, endTime));
+    System.out.println("guest1 available after: " + meeting.findGuestAvail(guest1, startTime, endTime));
+    System.out.println("guest2 available after: " + meeting.findGuestAvail(guest2, startTime, endTime));
+    
+  }
+}
+
+  class Unavailability {
+    int startTime;
+    int endTime;
+    public Unavailability(int startTime, int endTime){
+      this.startTime = startTime;
+      this.endTime = endTime;
+    }
+  }
+
+  class Guest {
+    String name;
+    List<Unavailability> unavailabilities = new ArrayList<>();  
+    public Guest(String name){
+      this.name = name;
+    }
+  }
+
+  class Room {
+    String name;
+    List<Unavailability> unavailabilities = new ArrayList<>();  
+    public Room(String name){
+      this.name = name;
+    }
+  }
+
+  class Meeting {
+  
+    public static final int OFFICE_HOUR_BEGIN = 10; // railway time
+    public static final int OFFICE_HOUR_END = 19; // railway time    
+    
+    public Room createRoom (String room){
+      return new Room(room);
+    }
+    
+    public Guest createGuest (String guest){
+      return new Guest(guest);
+    }
+    
+    public boolean findRoomAvail(Room room, int startTime, int endTime){
+      for(Unavailability unavailability : room.unavailabilities){
+        if(startTime >= unavailability.startTime && startTime <= unavailability.endTime) return false;
+        if(endTime >= unavailability.startTime && endTime <= unavailability.endTime) return false;
+      }
+      return true;
+    }
+    
+    public boolean findGuestAvail(Guest guest, int startTime, int endTime){
+      for(Unavailability unavailability : guest.unavailabilities){
+        if(startTime >= unavailability.startTime && startTime <= unavailability.endTime) return false;
+        if(endTime >= unavailability.startTime && endTime <= unavailability.endTime) return false;
+      }
+      return true;
+    }
+    
+    public Unavailability createMeeting(Room room, List<Guest> guests, int startTime, int endTime) {
+      if(startTime < OFFICE_HOUR_BEGIN 
+        || startTime > OFFICE_HOUR_END
+        || endTime < OFFICE_HOUR_BEGIN 
+        || endTime > OFFICE_HOUR_END){
+        System.out.println("Cant create meeting: outside office hours");
+        return null;
+      }
+      if(!findRoomAvail(room, startTime, endTime)) {
+        System.out.println("Cant create meeting: room unavailable");
+        return null;
+      }
+      for(Guest guest : guests){
+        if(!findGuestAvail(guest, startTime, endTime)) {
+          System.out.println("Cant create meeting: guest unavailable");
+          return null;
+        }
+      }
+      Unavailability unavailability = new Unavailability(startTime, endTime);
+      room.unavailabilities.add(unavailability);
+      for(Guest guest : guests){
+        guest.unavailabilities.add(unavailability);
+      }
+      System.out.println("------ Meeting created ------");
+    return unavailability; 
+    }
+  
+  public void cancelMeeting(Room room, List<Guest> guests, int startTime, int endTime, Unavailability unavailability){
+    room.unavailabilities.remove(unavailability);  // to do: check if room has this unavailability // use Map instead of List, else I'l have too loop all unavailabilites
+    for(Guest guest : guests){  // to do: check if guest has this unavailability // use Map instead of List, else I'l have too loop all unavailabilites
+      guest.unavailabilities.remove(unavailability);  // to do: Using LinkedList instead of ArrayList improves remove performance
+    }
+    System.out.println("------ Meeting cancelled ------");
+  }
+  }
+
+
